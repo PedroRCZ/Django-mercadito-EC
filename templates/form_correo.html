@@ -1,0 +1,176 @@
+{% extends 'base.html' %} 
+{% load static %} 
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+
+   <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+      .form-control {
+    display: block;
+    width: 100%;
+    height: calc(1.5em + .75rem + 2px);
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da !important;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+
+    </style>
+  
+ 
+    <div class="container">
+  <div class="py-5 text-center">
+    <!-- <img class="d-block mx-auto mb-4" src="/docs/4.3/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72"> -->
+    <h2>Formulario de pago</h2>
+    <p class="lead">Tus datos personales se utilizarán para procesar tu pedido.</p>
+  </div>
+
+  <div class="row">
+
+
+    <div class="col-md-8 order-md-1 card" >
+    	
+      <!--CONTENIDO DEL FORM-->
+        <form method="POST"  class="needs-validation" novalidate>
+
+            <div class="form-row mt-5">
+                <div class="col-md-4 mb-5">
+                    <label for="validarNombre">Nombre:<span class="red">*</span></label>
+                    <input type="text" class="form-control" id="validarNombre" name="validarNombre" required>
+                </div>
+            </div>
+        
+            <div class="form-row">
+                <div class="col-md-4 mb-3">
+                    <label for="validarApellidos">Cédula/RUC:<span class="red">*</span></label>
+                    <input type="text" class="form-control" id="validarApellidos" name="validarApellidos" required>
+                </div>
+            </div>
+        
+            <div class="form-row">
+                <div class="col-md-4 mb-3">
+                    <label for="validarEmail">Email:<span class="red">*</span></label>
+                    <input type="email" class="form-control" id="validarEmail" name="validarEmail" required>
+                </div>
+            </div>
+        
+            <div class="form-row">
+                <div class="col-md-4 mb-3">
+                    <label for="validarTelefono">Teléfono:<span class="red">*</span></label>
+                    <input type="text" class="form-control" id="validarTelefono" name="validarTelefono" max="999999999" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="col-md-4 mb-3">
+                    <label for="validarTelefono">Dirección:<span class="red">*</span></label>
+                    <input type="text" class="form-control" id="validarDireccion" name="validarDireccion" max="999999999" required>
+                </div>
+            </div>
+                   
+            <div class="form-group">
+                <label for="validationMensaje">Notas del pedido (opcional):</label>
+                <textarea class="form-control" id="validationMensaje" name="validationMensaje" rows="3" min="25" ></textarea>
+            </div>
+        
+            <div class="form-group mb-10">
+                <button  class="btn btn-primary" type="submit" name="submit">Enviar</button>
+                <button class="btn btn-success" type="reset" name="reset">Limpiar</button>
+            </div>
+            <!--ENVIO DE EMAIL-->
+            <? php
+                if (isset($_POST['submit'])) {
+                    //ini_set( 'display_errors', 1 ); # REMOVE // FOR DEBUG
+                    //error_reporting( E_ALL ); # REMOVE // FOR DEBUG
+                    $from = "UNCORREO@TUDOMINIO.COM"; // Email con el dominio del Hosting para evitar SPAM
+                    $fromName = "RPF-WEB"; // Nombre que saldrá en el email recibido
+                    $to = "DESTINO@DOMINIO.COM"; // Dirección donde se enviará el formulario
+                    $subject = $_POST['validarAsunto']; // Asunto del Formulario
+
+                    /* Componemos el mensaje */
+                    $fullMessage = "Hola! " . $to . "\r\n";
+                    $fullMessage .= $_POST['validarNombre'] . " " . $_POST['validarApellidos'] . " te ha enviado un mensaje:\r\n";
+                    $fullMessage .= "\r\n";
+                    $fullMessage .= "Nombre: " . $_POST['validarNombre'] . "\r\n";
+                    $fullMessage .= "Apellidos: " . $_POST['validarApellidos'] . "\r\n";
+                    $fullMessage .= "E-Mail: " . $_POST['validarEmail'] . "\r\n";
+                    $fullMessage .= "Teléfono: " . $_POST['validarTelefono'] . "\r\n";
+                    $fullMessage .= "Tema: " . $_POST['validarTema'] . "\r\n";
+                    $fullMessage .= "Asunto: " . $_POST['validarAsunto'] . "\r\n";
+                    $fullMessage .= "Mensaje: " . $_POST['validationMensaje'] . "\r\n";
+                    $fullMessage .= "\r\n";
+                    $fullMessage .= "Saludos!\r\n";
+
+                    /* Creamos las cabeceras del Email */
+                    $headers = "Organization: RPF WEB\r\n";
+                    $headers .= "From: " . $fromName . "<" . $from . ">\r\n";
+                    $headers .= "Reply-To: " . $_POST['validarEmail'] . "\r\n";
+                    $headers .= "Return-Path: " . $to . "\r\n";
+                    $headers .= "MIME-Version: 1.0\r\n";
+                    $headers .= "Content-type: text/plain; charset=iso-8859-1\r\n";
+                    $headers .= "X-Priority: 3\r\n";
+                    $headers .= "X-Mailer: PHP". phpversion() ."\r\n";
+
+                    /* Enviamos el Formulario*/
+                    if (mail($to, $subject, $fullMessage, $headers)) {
+                        echo "<center><h2>El E-Mail se ha enviado correctamente!</h2></center>";
+                    } else {
+                        echo "<center><h2>Ops ! El E-Mail ha fallado!</h2></center>S";
+                    }
+                }
+                ?>
+        </form>
+    </div>
+
+    {% include "order_snippet.html" %}
+
+  </div>
+
+  <footer class="my-5 pt-5 text-muted text-center text-small">
+    <p class="mb-1">&copy; 2020-2021 Mercadito EC</p>
+    
+  </footer>
+  <!--VALIDACION DE LOS CAMPOS DEL FORMULARIO-->
+  <script>
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+
+                }, false);
+            });
+        }, false);
+    })();
+</script>
+  <!--FIN VALIDACION DE LOS CAMPOS DEL FORMULARIO-->
+
+</div>
+{% endblock content %}
