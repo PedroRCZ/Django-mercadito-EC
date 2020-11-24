@@ -2,7 +2,7 @@
 
 {% load i18n %}
 {% load account socialaccount %}
-{% load crispy_forms_tags %}
+<!--{% load crispy_forms_tags %}-->
 
 {% block head_title %}{% trans "Iniciar sesión" %}{% endblock %}
 
@@ -13,7 +13,22 @@
 
     border: 1px solid #ced4da !important;
 
-}
+  } 
+  .btn-primary {
+    margin-bottom: 30px !important;   
+  }
+  .btn-outline-dark{
+    margin-bottom: 30px !important;   
+  }
+  .regis{
+    padding: 10px;
+    background: #3d3d3d;
+    border-radius: 10px;
+  }
+  form{
+    margin-bottom: 50px;
+  }
+
 </style>
 
 
@@ -26,25 +41,16 @@
 {% get_providers as socialaccount_providers %}
 
 {% if socialaccount_providers %}
-<p>{% blocktrans with site.name as site_name %}Inicie sesión con uno
-  de sus cuentas de terceros existentes. O, <a href="{{ signup_url }}">REGISTRARSE</a>
+<p>{% blocktrans with site.name as site_name %}¿No tienes una cuenta?   <a href="{{ signup_url }}">Regístrate</a>
  {% endblocktrans %}</p>
 
-<div class="socialaccount_ballot">
 
-  <ul class="socialaccount_providers">
-    {% include "socialaccount/snippets/provider_list.html" with process="login" %}
-  </ul>
-
-  <div class="login-or">{% trans 'or' %}</div>
-
-</div>
 
 {% include "socialaccount/snippets/login_extra.html" %}
 
 {% else %}
 <p>{% blocktrans %}If you have not created an account yet, then please
-<a href="{{ signup_url }}" class="text-primary">sign up</a> first.{% endblocktrans %}</p>
+<a href="{{ signup_url }}" class="text-primary">Ingresar</a> first.{% endblocktrans %}</p>
 {% endif %}
 
 <form class="login" method="POST" action="{% url 'account_login' %}">
@@ -54,8 +60,19 @@
 
   <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
   {% endif %}
-  <a class="btn btn-outline-dark" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
-  <button class="btn btn-primary" type="submit">{% trans "Sign In" %}</button>
+  <a class="btn btn-outline-dark" href="{% url 'account_reset_password' %}">{% trans "Olvidaste tu Contraseña?" %}</a>
+  <button class="btn btn-primary" type="submit">{% trans "Ingresar" %}</button>
+
+  <div class="socialaccount_ballot">
+    <p>{% blocktrans with site.name as site_name %}Inicia sesión con   
+      {% endblocktrans %}</p>
+    <ul class="socialaccount_providers">
+      {% include "socialaccount/snippets/provider_list.html" with process="login" %}
+    </ul>
+  
+    <!--<div class="login-or">{% trans 'or' %}</div>-->
+  
+  </div>
 </form>
 
     </div>

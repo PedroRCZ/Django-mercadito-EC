@@ -17,7 +17,7 @@ class CheckoutForm(forms.Form):
         'placeholder': 'Casa ó departamento...',
         'class': 'form-control'
     }))
-    country = CountryField(blank_label='(select country)').formfield(widget=CountrySelectWidget(attrs={
+    country = CountryField(blank_label='(Seleccione su pais)').formfield(widget=CountrySelectWidget(attrs={
         'class': 'custom-select d-block w-100'
 
     }))

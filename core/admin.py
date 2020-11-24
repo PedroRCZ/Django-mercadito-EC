@@ -10,7 +10,7 @@ def make_refund_accepted(modeladmin, request, queryset):
     queryset.update(refund_requested=False, refund_granted=True)
 
 
-make_refund_accepted.short_description = 'Update orders to refund granted'
+make_refund_accepted.short_description = 'Actualizar su pedido para realizar un reembolso'
 
 
 class OrderAdmin(admin.ModelAdmin):

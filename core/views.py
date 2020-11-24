@@ -35,7 +35,7 @@ class PaymentView(View):
             return render(self.request, "payment.html", context)
         else:
             messages.warning(
-                self.request, "u have not added a billing address")
+                self.request, "no ha agregado una dirección de facturación")
             return redirect("core:checkout")
 
     def post(self, *args, **kwargs):
@@ -78,30 +78,23 @@ class PaymentView(View):
             return redirect("/")
 
         except stripe.error.InvalidRequestError as e:
-            # Invalid parameters were supplied to Stripe's API
-            messages.error(self.request, "Invalid parameters")
+            messages.error(self.request, "parámetros inválidos")
             return redirect("/")
 
         except stripe.error.AuthenticationError as e:
-            # Authentication with Stripe's API failed
-            # (maybe you changed API keys recently)
-            messages.error(self.request, "Not Authentication")
+            messages.error(self.request, "Sin autenticación")
             return redirect("/")
 
         except stripe.error.APIConnectionError as e:
-            # Network communication with Stripe failed
-            messages.error(self.request, "Network Error")
+            messages.error(self.request, "Error de red")
             return redirect("/")
 
         except stripe.error.StripeError as e:
-            # Display a very generic error to the user, and maybe send
-            # yourself an email
-            messages.error(self.request, "Something went wrong")
+            messages.error(self.request, "Algo salió mal")
             return redirect("/")
 
         except Exception as e:
-            # send an email to ourselves
-            messages.error(self.request, "Serious Error occured")
+            messages.error(self.request, "Se produjo un error grave")
             return redirect("/")
 
 
