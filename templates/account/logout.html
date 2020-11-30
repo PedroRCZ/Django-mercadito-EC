@@ -14,21 +14,23 @@
   <div class="row">
 
     <div class="col-md-6 mt-5 offset-3">
-<h1>{% trans "Sign Out" %}</h1>
+      <h1>{% trans "Cerrar Sesión" %}</h1>
 
-<p>{% trans '¿Estás seguro de que quieres cerrar sesión?' %}</p>
+      <p>{% trans '¿Estás seguro de que quieres cerrar sesión?' %}</p>
 
-<form method="post" action="{% url 'account_logout' %}">
-  {% csrf_token %} {% if redirect_field_value %}
-  <input
-    type="hidden"
-    name="{{ redirect_field_name }}"
-    value="{{ redirect_field_value }}"
-  />
-  {% endif %}
-  <button type="submit" class="btn btn-primary">{% trans 'Sign Out' %}</button>
-</form>
-</div>
-</div>
+      <form method="post" action="{% url 'account_logout' %}">
+        {% csrf_token %} {% if redirect_field_value %}
+        <input
+          type="hidden"
+          name="{{ redirect_field_name }}"
+          value="{{ redirect_field_value }}"
+        />
+        {% endif %}
+        <button type="submit" class="btn btn-primary">{% trans 'Cerrar Sesión' %}</button>
+        
+          <hr class="mb-4">
+      </form>
+    </div>
+  </div>
 </div>
 {% endblock %}

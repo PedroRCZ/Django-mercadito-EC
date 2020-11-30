@@ -17,17 +17,10 @@ class CheckoutForm(forms.Form):
         'placeholder': 'Casa ó departamento...',
         'class': 'form-control'
     }))
-    country = CountryField(blank_label='(Seleccione su pais)').formfield(widget=CountrySelectWidget(attrs={
-        'class': 'custom-select d-block w-100'
-
-    }))
-    zip = forms.CharField(widget=forms.TextInput(attrs={
-        'class': 'form-control'
-    }))
+    
+    
     same_shipping_address = forms.BooleanField(required=False)
     save_info = forms.BooleanField(required=False)
-    payment_option = forms.ChoiceField(
-        widget=forms.RadioSelect, choices=PAYMENT_CHOICES)
 
 
 class CouponForm(forms.Form):

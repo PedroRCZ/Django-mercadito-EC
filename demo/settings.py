@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 
 ENVIRONMENT = os.getenv('ENVIRONMENT', 'development')
@@ -22,7 +23,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'crispy_forms',
     'django_countries',
-    'core'
+    'core',
+    'core.configuracion_email'
 ]
 
 MIDDLEWARE = [
@@ -52,6 +54,8 @@ TEMPLATES = [
         },
     },
 ]
+
+"""
 #ENVIAR CORREOS ELECTRONICOS
 #EMAIL_BACKEND
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -63,6 +67,11 @@ EMAIL_PORT = '2525'
 #EMAIL_USE_TLS
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
+
+"""
+
+
+
 
 # static files (CSS, JS, Image)
 
@@ -120,3 +129,17 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 STRIPE_PUBLIC_KEY = 'pk_test_lX3r6OMjOU2yzFsNSHq6belT00EY82kZmH'
 STRIPE_SECRET_KEY = 'sk_test_tn0CTDaIJHUJyAqhsf39cfsC00LNjsqDnb'
+
+
+
+# Envio de Correos
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587 
+EMAIL_HOST_USER = "ecmercadito@gmail.com"
+EMAIL_HOST_PASSWORD ="ecmercadito123*"
+
+

@@ -3,21 +3,35 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404  # para buscar en la base de datos
 from django.views.generic import ListView, DetailView, View
 from django.shortcuts import redirect
 from django.utils import timezone
 from .forms import CheckoutForm, CouponForm, RefundForm
-from .models import Item, OrderItem, Order, BillingAddress, Payment, Coupon, Refund, Category
+from .models import Item, OrderItem, Order, BillingAddress, Payment, Coupon, Refund, Category,Usuarios
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
+from django.core.mail import send_mail
+from django.conf import settings
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from pprint import pprint
 
-# Create your views here.
+
 import random
 import string
 import stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
+
+from .configuracion_email import email_metodos
+
+
+##Variables globales
+correocliente = ""
+correo = ""
 
 def create_ref_code():
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=20))
@@ -42,29 +56,52 @@ class PaymentView(View):
         order = Order.objects.get(user=self.request.user, ordered=False)
         token = self.request.POST.get('stripeToken')
         amount = int(order.get_total() * 100)
-        try:
-            charge = stripe.Charge.create(
-                amount=amount,  # cents
-                currency="usd",
-                source=token
-            )
-            # create the payment
-            payment = Payment()
-            payment.stripe_charge_id = charge['id']
-            payment.user = self.request.user
-            payment.amount = order.get_total()
-            payment.save()
 
-            # assign the payment to the order
-            order.ordered = True
-            order.payment = payment
-            # TODO : assign ref code
-            order.ref_code = create_ref_code()
-            order.save()
+        context = {
+            'object': order
+        }
+        #try:
+        charge = stripe.Charge.create(
+            amount=amount,  # a dolares
+            currency="usd",
+            source=token
+        )
+        # crea los pagos
+        payment = Payment()
+        payment.stripe_charge_id = charge['id']
+        payment.user = self.request.user
+        payment.amount = order.get_total()
+        payment.save()
 
-            messages.success(self.request, "La orden fue enviada exitosamente")
-            return redirect("/")
+        #hace el pago con la orden
+        order.ordered = True
+        order.payment = payment
+        # TODO : referencia de codigo
+        order.ref_code = create_ref_code()
+        order.save()
 
+        ## Enviar email a cliente 
+    
+        usuario = order.__str__   # me obtiene el nombre de usuario
+    
+        correo = order.get_email()
+    
+        nombre = order.get_nombre()
+        if len(nombre) == 0:
+            nombre = order.get_usuario()        
+
+        apellido = order.get_apellido()
+        if len(apellido) == 0:
+            apellido = ""
+        total = order.get_total()
+        productos = order.get_productos_seleccionados()
+                
+        programa = email_metodos()
+        programa.envio_email(correo,nombre,apellido,"$"+str(total),productos)
+
+        messages.success(self.request, "La orden fue enviada exitosamente")
+        return redirect("/")
+        """
         except stripe.error.CardError as e:
             # Since it's a decline, stripe.error.CardError will be caught
             body = e.json_body
@@ -97,7 +134,8 @@ class PaymentView(View):
             messages.error(self.request, "Se produjo un error grave")
             return redirect("/")
 
-
+        """
+    
 class HomeView(ListView):
     template_name = "index.html"
     queryset = Item.objects.filter(is_active=True)
@@ -127,6 +165,9 @@ class ItemDetailView(DetailView):
     model = Item
     template_name = "product-detail.html"
 
+class quienesSomos(DetailView):
+    model = Category
+    template_name = "quienesSomos.html"
 
 # class CategoryView(DetailView):
 #     model = Category
@@ -160,10 +201,29 @@ class envioCorreo(View):
         except ObjectDoesNotExist:
             messages.info(self.request, "No tienes un pedido activo")
             return redirect("core:checkout")
-            
+
+class confirmacion(View):
+    def get(self, *args, **kwargs):
+        try:
+            order = Order.objects.get(user=self.request.user, ordered=False)
+            form = CheckoutForm()
+            context = {
+                'form': form,
+                'couponform': CouponForm(),
+                'order': order,
+                'DISPLAY_COUPON_FORM': True
+            }
+            return render(self.request, "informacionpago.html", context)
+
+
+        except ObjectDoesNotExist:
+            messages.info(self.request, "No tienes un pedido activo")
+            return redirect("core:checkout")
+               
+ # Metodo para la orden procesado al correo del usuario vendedor        
 def process_order(request):
     order = Order.objects.create(user=request.user, completed=True)
-    cart = Cart(request)
+    cart = cart(request)
     order_lines = list()
     for key, value in cart.cart.items():
         order_lines.append(
@@ -190,6 +250,8 @@ def process_order(request):
     return redirect("/")
 
 
+# Método para enviarle informacion del cliente de lo que compró
+
 def send_order_email(**kwargs):
     subject = "Gracias por tu pedido"
     html_message = render_to_string("nuevo_pedido.html", {
@@ -198,10 +260,17 @@ def send_order_email(**kwargs):
         "username": kwargs.get("username")
     })
     plain_message = strip_tags(html_message)
-    from_email = "wyanez2@utmachala.edu.ec"
-    to = kwargs.get("account_email")
-    send_mail(subject, plain_message, from_email, [to], html_message=html_message)
+    from_email = settings.EMAIL_HOST_USER
+  #  to = kwargs.get("account_email")
+    correcliente = ""
+    #send_mail(subject, plain_message, from_email, [to], html_message=html_message)
+    recipient_list=[correocliente]
+    send_mail(subject,plain_messag,email_from,recipient_list,html_message=html_message)
 
+
+
+
+# Clase de Formulario ed pag
 class CheckoutView(View):
     def get(self, *args, **kwargs):
         try:
@@ -226,9 +295,10 @@ class CheckoutView(View):
             print(self.request.POST)
             if form.is_valid():
                 street_address = form.cleaned_data.get('street_address')
+                correo = form.cleaned_data.get('correo')
                 apartment_address = form.cleaned_data.get('apartment_address')
                 country = form.cleaned_data.get('country')
-                zip = form.cleaned_data.get('zip')
+                zip = form.cleaned_data.get('zip')  # codig postal
                 # add functionality for these fields
                 # same_shipping_address = form.cleaned_data.get(
                 #     'same_shipping_address')
@@ -246,15 +316,20 @@ class CheckoutView(View):
                 order.billing_address = billing_address
                 order.save()
 
-                # add redirect to the selected payment option
-                if payment_option == 'S':
-                    return redirect('core:payment', payment_option='Deposito Bancario')
-                elif payment_option == 'P':
-                    return redirect('core:payment', payment_option='paypal')
-                else:
-                    messages.warning(
-                        self.request, "Seleccione una opción de pago no válida")
-                    return redirect('core:checkout')
+                # El pago es por depósito bancario
+                # if payment_option == 'S':
+            
+                #     return redirect('core:payment', payment_option='Deposito Bancario')
+                
+                #  # El pago es por tarjeta
+                # elif payment_option == 'P':
+
+                    
+                return redirect('core:payment', payment_option='paypal')
+                # else:
+                #     messages.warning(
+                #         self.request, "Seleccione una opción de pago no válida")
+                #     return redirect('core:checkout')
         except ObjectDoesNotExist:
             messages.error(self.request, "No tienes un pedido activo")
             return redirect("core:order-summary")
@@ -290,6 +365,7 @@ def add_to_cart(request, slug):
         ordered=False
     )
     order_qs = Order.objects.filter(user=request.user, ordered=False)
+    
     if order_qs.exists():
         order = order_qs[0]
         if order.items.filter(item__slug=item.slug).exists():
@@ -309,7 +385,7 @@ def add_to_cart(request, slug):
         messages.info(request, "El artículo fue agregado a su carrito.")
     return redirect("core:order-summary")
 
-
+# Remover producto de carrito
 @login_required
 def remove_from_cart(request, slug):
     item = get_object_or_404(Item, slug=slug)
@@ -432,3 +508,5 @@ class RequestRefundView(View):
             except ObjectDoesNotExist:
                 messages.info(self.request, "This order does not exist")
                 return redirect("core:request-refund")
+     
+  

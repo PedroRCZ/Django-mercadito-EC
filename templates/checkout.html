@@ -2,6 +2,7 @@
 {% load static %} 
 {% load crispy_forms_tags %}
 
+
 {% block content %}
 
 
@@ -57,21 +58,23 @@
       	{% csrf_token %}
         <div class="mb-3">
           <label for="address">Dirección</label>
-          {{ form.street_address }}
+          <input type="text" name="street_address" placeholder="Calle...." class="form-control" required="" id="id_street_address">
+                 
         </div>
-
+        
+        
         <div class="mb-3">
-          <label for="address2">Dirección 2 <span class="text-muted">(Opcional)</span></label>
+          <label for="address2">Dirección referencia  <span class="text-muted">(Opcional)</span></label>
           {{ form.apartment_address }}
         </div>
 
         <div class="row">
           <div class="col-md-5 mb-3">
             <label for="country">País</label>
-           		{{ form.country }}
-            <div class="invalid-feedback">
-              Seleccione un país válido.
-            </div>
+              <select class="custom-select d-block w-100" id="state" required>
+                <option value="">Escoger...</option>
+                <option>Ecuador</option>  
+              </select>
           </div>
           <div class="col-md-4 mb-3">
             <label for="state">Ciudad</label>
@@ -93,11 +96,7 @@
             </div>
           </div>
           <div class="col-md-3 mb-3">
-            <label for="zip">Zip</label>
-            {{ form.zip }}
-            <div class="invalid-feedback">
-              Se requiere código postal.
-            </div>
+            
           </div>
         </div>
         <hr class="mb-4">
@@ -113,17 +112,8 @@
         </div>
         <hr class="mb-4">
 
-        <h4 class="mb-3">Pago</h4>
-
-        <div class="d-block my-3">
-        	{% for value, name in form.fields.payment_option.choices %}
-          <div class="custom-control custom-radio">
-            <input id="{{ name }}" name="payment_option" value="{{ value }}" type="radio" class="custom-control-input"  required>
-            <label class="custom-control-label" for="{{name}}">{{ name }}</label>
-          </div>
-          {% endfor %}
-        </div>
-        
+               
+  
         <hr class="mb-4">
         <button class="btn btn-primary btn-lg btn-block" type="submit">Continuar a la comprobación</button>
       </form>

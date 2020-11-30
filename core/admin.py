@@ -1,3 +1,8 @@
+"""
+ Panel de administració par atrabajar con las tablas
+
+"""
+
 from django.contrib import admin
 
 from .models import Item, OrderItem, Order, Payment, Coupon, Refund, BillingAddress, Category, Slide
@@ -87,6 +92,8 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ['title', 'is_active']
     prepopulated_fields = {"slug": ("title",)}
 
+
+# Para el registro de las tablas
 
 admin.site.register(Item, ItemAdmin)
 admin.site.register(Category, CategoryAdmin)

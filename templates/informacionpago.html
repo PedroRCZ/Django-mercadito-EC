@@ -1,0 +1,129 @@
+{% extends 'base.html' %} 
+{% load static %} 
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+
+   <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+      .form-control {
+    display: block;
+    width: 100%;
+    height: calc(1.5em + .75rem + 2px);
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da !important;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+
+    </style>
+  
+ 
+    <div class="container">
+  <div class="py-5 text-center">
+    <!-- <img class="d-block mx-auto mb-4" src="/docs/4.3/assets/brand/bootstrap-solid.svg" alt="" width="72" height="72"> -->
+    <h2>Pago a acordar con el vendedor</h2>
+    <p class="lead">Su pedido ha sido enviado.</p>
+  </div>
+
+  <div class="row">
+    
+	<div class="service-payment  service-box-additional">
+		
+			<p class="modal__subheading">Este vendedor ofrece</p>
+			<ul class="table-list list-offer">
+			
+				
+					<li>Efectivo</li>
+				
+					<li>Depósito bancario</li>
+				
+			</ul>
+		
+
+		<p class="modal__subheading">
+			¿Cómo coordino el pago del producto?
+		</p>
+		
+			<ol class="service-list service-list--ordered">
+				<li class="service-list__item">
+					<span class="service-list__bullet">1</span>
+					Al terminar tu compra, recibirás los datos del vendedor.
+				</li>
+				<li class="service-list__item">
+					<span class="service-list__bullet">2</span>
+					Contáctalo para acordar el pago del producto.
+				</li>
+			</ol>
+		
+		
+			<small class="modal__desc-text">
+				<p>Si eliges transferencia bancaria, presta atención a la reputación del vendedor.</p>
+				<p>Por seguridad, te recomendamos evitar este medio de pago si el vendedor es nuevo o su reputación es dudosa.</p>
+			</small>
+		
+	</div>
+
+
+    
+
+
+
+	<div class="service-shipping ">
+
+
+    
+    </div>
+
+   
+
+  </div>
+
+  <footer class="my-5 pt-5 text-muted text-center text-small">
+    <p class="mb-1">&copy; 2020-2021 Mercadito EC</p>
+    
+  </footer>
+  <!--VALIDACION DE LOS CAMPOS DEL FORMULARIO-->
+  <script>
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+
+                }, false);
+            });
+        }, false);
+    })();
+</script>
+  <!--FIN VALIDACION DE LOS CAMPOS DEL FORMULARIO-->
+
+</div>
+{% endblock content %}

@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models import Sum
 from django.shortcuts import reverse
 from django_countries.fields import CountryField
+import sqlite3
 
 # Create your models here.
 CATEGORY_CHOICES = (
@@ -24,6 +25,7 @@ ADDRESS_CHOICES = (
 )
 
 
+
 class Slide(models.Model):
     caption1 = models.CharField(max_length=100)
     caption2 = models.CharField(max_length=100)
@@ -41,6 +43,7 @@ class Category(models.Model):
     image = models.ImageField()
     is_active = models.BooleanField(default=True)
 
+
     def __str__(self):
         return self.title
 
@@ -50,7 +53,26 @@ class Category(models.Model):
         })
 
 
-class Item(models.Model):
+
+class Usuarios(models.Model):
+   
+    stripe_charge_id = models.CharField(max_length=50)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.SET_NULL, blank=True, null=True)
+    amount = models.FloatField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def get_usuario(self):
+        return self.user.username
+    def get_nombre(self):
+        return self.user.first_name
+    def get_apellido(self):
+        return self.user.last_name
+    def get_email(self):
+        return self.user.email
+
+
+class Item(models.Model):  
     title = models.CharField(max_length=100)
     price = models.FloatField()
     discount_price = models.FloatField(blank=True, null=True)
@@ -64,6 +86,9 @@ class Item(models.Model):
     #nuevo
     image2 = models.ImageField()
     image3 = models.ImageField()
+    numero_telefonico = models.CharField(max_length=15)
+    direccionFacebook =  models.TextField()
+
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -95,6 +120,9 @@ class OrderItem(models.Model):
     def __str__(self):
         return f"{self.quantity} of {self.item.title}"
 
+    def get_cantidad(self):
+        return self.quantity
+
     def get_total_item_price(self):
         return self.quantity * self.item.price
 
@@ -108,6 +136,10 @@ class OrderItem(models.Model):
         if self.item.discount_price:
             return self.get_total_discount_item_price()
         return self.get_total_item_price()
+
+    def get_producto_nombre(self):
+        return self.item.title
+
 
 
 class Order(models.Model):
@@ -129,7 +161,7 @@ class Order(models.Model):
     received = models.BooleanField(default=False)
     refund_requested = models.BooleanField(default=False)
     refund_granted = models.BooleanField(default=False)
-
+    
     '''
     1. Item added to cart
     2. Adding a BillingAddress
@@ -140,17 +172,50 @@ class Order(models.Model):
     6. Refunds
     '''
 
+    # me devuelve elo nombre de usuario
     def __str__(self):
+    
         return self.user.username
+    
+    # me devuelve elo nombre de usuario
+    def _usuario(self):
+        return self.user.username
+    
+    def get_usuario(self):
+        return self.user.username
+    def get_nombre(self):
+        return self.user.first_name
+    def get_apellido(self):
+        return self.user.last_name
+    def get_email(self):
+        return self.user.email
 
     def get_total(self):
         total = 0
+        
         for order_item in self.items.all():
             total += order_item.get_final_price()
         if self.coupon:
             total -= self.coupon.amount
         return total
+    
+    ## Mas métodos
+     #def unidades(self):
 
+            
+    def get_items_seleccionados(self):
+        return self.items.all()
+    
+    def get_productos_seleccionados(self):
+        
+        lista = []
+
+        for order_item in self.items.all():
+            lista.append(" "+str(order_item.get_cantidad())+ "  "+order_item.item.title+"  $"+str(order_item.item.price)+"\n , ")
+        
+        productos = '\n'.join([str(i) for i in lista])
+        return productos
+      
 
 class BillingAddress(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
@@ -186,6 +251,7 @@ class Coupon(models.Model):
 
     def __str__(self):
         return self.code
+
 
 
 class Refund(models.Model):
