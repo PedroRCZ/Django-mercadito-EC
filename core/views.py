@@ -60,48 +60,48 @@ class PaymentView(View):
         context = {
             'object': order
         }
-        #try:
-        charge = stripe.Charge.create(
-            amount=amount,  # a dolares
-            currency="usd",
-            source=token
-        )
-        # crea los pagos
-        payment = Payment()
-        payment.stripe_charge_id = charge['id']
-        payment.user = self.request.user
-        payment.amount = order.get_total()
-        payment.save()
+        try:
+            charge = stripe.Charge.create(
+                amount=amount,  # a dolares
+                currency="usd",
+                source=token
+            )
+            # crea los pagos
+            payment = Payment()
+            payment.stripe_charge_id = charge['id']
+            payment.user = self.request.user
+            payment.amount = order.get_total()
+            payment.save()
 
-        #hace el pago con la orden
-        order.ordered = True
-        order.payment = payment
-        # TODO : referencia de codigo
-        order.ref_code = create_ref_code()
-        order.save()
+            #hace el pago con la orden
+            order.ordered = True
+            order.payment = payment
+            # TODO : referencia de codigo
+            order.ref_code = create_ref_code()
+            order.save()
 
-        ## Enviar email a cliente 
-    
-        usuario = order.__str__   # me obtiene el nombre de usuario
-    
-        correo = order.get_email()
-    
-        nombre = order.get_nombre()
-        if len(nombre) == 0:
-            nombre = order.get_usuario()        
+            ## Enviar email a cliente 
+        
+            usuario = order.__str__   # me obtiene el nombre de usuario
+        
+            correo = order.get_email()
+        
+            nombre = order.get_nombre()
+            if len(nombre) == 0:
+                nombre = order.get_usuario()        
 
-        apellido = order.get_apellido()
-        if len(apellido) == 0:
-            apellido = ""
-        total = order.get_total()
-        productos = order.get_productos_seleccionados()
-                
-        programa = email_metodos()
-        programa.envio_email(correo,nombre,apellido,"$"+str(total),productos)
+            apellido = order.get_apellido()
+            if len(apellido) == 0:
+                apellido = ""
+            total = order.get_total()
+            productos = order.get_productos_seleccionados()
+                    
+            programa = email_metodos()
+            programa.envio_email(correo,nombre,apellido,"$"+str(total),productos)
 
-        messages.success(self.request, "La orden fue enviada exitosamente")
-        return redirect("/")
-        """
+            messages.success(self.request, "La orden fue enviada exitosamente")
+            return redirect("/")
+        
         except stripe.error.CardError as e:
             # Since it's a decline, stripe.error.CardError will be caught
             body = e.json_body
@@ -134,7 +134,7 @@ class PaymentView(View):
             messages.error(self.request, "Se produjo un error grave")
             return redirect("/")
 
-        """
+        
     
 class HomeView(ListView):
     template_name = "index.html"
